@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Screen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #ffff;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #28a745;
+        }
+
+        .message.error {
+            color: #dc3545;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #ffff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-height: 80vh;
+            overflow: auto;
+            position: relative; /* Needed for overlay */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Zoom controls at the bottom-right corner with transparency */
+        .zoom-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .zoom-controls button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .zoom-controls button:hover {
+            background-color: #f0f0f0;
+        }
+
+        #preview-container {
+            overflow-x: scroll;  /* Enable horizontal scrolling */
+            white-space: nowrap;
+            margin-top: 50px;  /* Ensures the zoom controls don’t overlap */
+            position: relative;
+        }
+
+        #preview-container img, #preview-container iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Add download button styling */
+        .download-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .download-button:hover {
+            background-color: #218838;
+        }
+      
+      
+        /* Style for the container */
+        .link-container {
+            margin-bottom: 20px;
+        }
+
+        /* Style for each link */
+        .link-container span {
+            margin-right: 10px; /* Space between links */
+        }
+
+        .link-container a {
+            color: #333;
+            text-decoration: none; /* Removes the underline */
+            font-size: 18px;
+            font-weight: none; /* Makes the text bold */
+        }
+
+        /* Hover effect */
+        .link-container a:hover {
+            color: #00ffff;
+        }
+      
+      
+      /* Footer styling */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 10px;
+            background-color: #ffff;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+        }
+
+        footer p {
+            margin: 0;
+            color: #555;
+        }
+
+        footer p span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+     <div class="container">
+        <h1>Net Screen</h1>
+        <div class="link-container" style="margin-bottom: 20px;">
+       <!-- /* <span><a href="/search.html">search</a></span>
+        <span><a  style="color: #00ffff;" href="/snap.html">snap</a></span>
+        <span><a href="/render">render</a></span>
+        <span><a href="/export">export</a></span>
+        <span><a href="/safe">safe</a></span>  */  -->
+        </div> 
+        <form id="pdfForm">
+            <input type="text" id="url" placeholder="URL" required>
+            <select id="size" required>
+                <option value="portrait">A4 Portrait</option>
+                <option value="landscape">A4 Landscape</option>
+            </select>
+            <select id="format" required>
+                <option value="pdf">PDF</option>
+                <option value="png">PNG</option>
+            </select>
+            <button type="submit">Generate</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
+  
+  
+  <!-- Footer -->
+    <footer>
+        <p>asoefuo</p>
+    </footer>
+
+    <!-- Modal for preview -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            <!-- Preview container with horizontal scrolling -->
+            <div id="preview-container"></div>
+
+            <!-- Transparent zoom controls at the bottom-right corner -->
+            <div class="zoom-controls">
+                <button id="zoomOut">-</button>
+                <button id="zoomIn">+</button>
+                <button id="downloadButton" class="download-button">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('pdfForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const url = document.getElementById('url').value;
+            const size = document.getElementById('size').value;
+            const format = document.getElementById('format').value;
+            document.getElementById('message').innerText = 'Generating, please wait...';
+
+            try {
+                const response = await fetch('/generate-file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url, size, format })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const fileURL = URL.createObjectURL(blob);
+
+                    const previewContainer = document.getElementById('preview-container');
+                    previewContainer.innerHTML = ''; // Clear previous preview
+
+                    // Show the modal with preview
+                    const modal = document.getElementById('previewModal');
+                    modal.style.display = 'block';
+
+                    if (format === 'pdf') {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = fileURL;
+                        iframe.style.width = '100%';
+                        iframe.style.height = '500px';
+                        previewContainer.appendChild(iframe);
+                    } else if (format === 'png') {
+                        const img = document.createElement('img');
+                        img.src = fileURL;
+                        previewContainer.appendChild(img);
+                    }
+
+                    // Handle zoom for PNG (optional)
+                    const zoomInBtn = document.getElementById('zoomIn');
+                    const zoomOutBtn = document.getElementById('zoomOut');
+                    let zoomLevel = 1;
+
+                    zoomInBtn.onclick = function () {
+                        zoomLevel += 0.1;
+                        previewContainer.style.transform = `scale(${zoomLevel})`;
+                    };
+
+                    zoomOutBtn.onclick = function () {
+                        zoomLevel -= 0.1;
+                        previewContainer.style.transform = `scale(${zoomLevel})`;
+                    };
+
+                    // Download button functionality
+                    const downloadBtn = document.getElementById('downloadButton');
+                    downloadBtn.onclick = function () {
+                        const link = document.createElement('a');
+                        link.href = fileURL;
+                        link.download = `website_${Date.now()}.${format}`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+
+                    // Close the modal
+                    document.querySelector('.close').onclick = function () {
+                        modal.style.display = 'none';
+                    };
+
+                    window.onclick = function (event) {
+                        if (event.target === modal) {
+                            modal.style.display = 'none';
+                        }
+                    };
+
+                    document.getElementById('message').innerText = `${format.toUpperCase()} generated successfully!`;
+                    document.getElementById('message').classList.remove('error');
+                } else {
+                    throw new Error('Failed to generate file.');
+                }
+            } catch (error) {
+                document.getElementById('message').innerText = 'Error generating file.';
+                document.getElementById('message').classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>
