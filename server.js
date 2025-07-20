@@ -74,53 +74,6 @@ app.post('/generate-file', async (req, res) => {
     }
 });
 
-// Route to handle the search query and use Puppeteer
-app.post('/search', async (req, res) => {
-    const { searchQuery } = req.body;
-
-    if (!searchQuery) {
-        return res.status(400).send({ error: 'Search query is required' });
-    }
-
-    try {
-        // Launch Puppeteer browser in headless mode
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-
-        // Navigate to Google and search for the query
-        await page.goto('https://www.google.com');
-        await page.type('input[name=q]', searchQuery); // Type search query in the Google search box
-        await page.keyboard.press('Enter'); // Press 'Enter' to submit the search
-
-        // Wait for search results to load
-        await page.waitForSelector('h3'); // Wait for at least one result (h3 tag in results)
-
-        // Extract search result titles and URLs
-        const results = await page.evaluate(() => {
-            const items = [];
-            document.querySelectorAll('h3').forEach(item => {
-                const link = item.closest('a');
-                if (link) {
-                    items.push({
-                        title: item.innerText,
-                        url: link.href
-                    });
-                }
-            });
-            return items;
-        });
-
-        // Close the browser
-        await browser.close();
-
-        // Send results as the response
-        res.status(200).send({ results });
-    } catch (error) {
-        console.error('Error during Puppeteer search:', error);
-        res.status(500).send({ error: 'Failed to perform search' });
-    }
-});
-
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
