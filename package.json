@@ -1,7 +1,7 @@
 {
-  "name": "asoefuoscan",
+  "name": "Net Screen",
   "version": "1.0.0",
-  "description": "web scan",
+  "description": "Web scan",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
